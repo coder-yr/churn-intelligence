@@ -63,91 +63,91 @@
       "test_statistic": 639.35
     }
   },
-  "cox_c_index": 0.9247,
+  "cox_c_index": 0.8432,
   "top_hazard_ratios": [
     {
       "covariate": "InternetService_Fiber optic",
-      "hazard_ratio": 2.2632,
-      "lower_95": 1.9071,
-      "upper_95": 2.6859,
+      "hazard_ratio": 2.7551,
+      "lower_95": 2.3192,
+      "upper_95": 3.2729,
       "p_value": 0.0
     },
     {
       "covariate": "PaymentMethod_Mailed check",
-      "hazard_ratio": 1.6027,
-      "lower_95": 1.369,
-      "upper_95": 1.8762,
+      "hazard_ratio": 1.8912,
+      "lower_95": 1.6122,
+      "upper_95": 2.2185,
       "p_value": 0.0
     },
     {
       "covariate": "PaymentMethod_Electronic check",
-      "hazard_ratio": 1.564,
-      "lower_95": 1.3731,
-      "upper_95": 1.7815,
+      "hazard_ratio": 1.8762,
+      "lower_95": 1.6521,
+      "upper_95": 2.1307,
       "p_value": 0.0
     },
     {
       "covariate": "PaperlessBilling_Yes",
-      "hazard_ratio": 1.2307,
-      "lower_95": 1.1061,
-      "upper_95": 1.3693,
-      "p_value": 0.000138
+      "hazard_ratio": 1.1982,
+      "lower_95": 1.0763,
+      "upper_95": 1.3339,
+      "p_value": 0.000953
     },
     {
       "covariate": "MonthlyCharges",
-      "hazard_ratio": 1.0181,
-      "lower_95": 1.0142,
-      "upper_95": 1.0221,
-      "p_value": 0.0
-    },
-    {
-      "covariate": "TotalCharges",
-      "hazard_ratio": 0.9989,
-      "lower_95": 0.9989,
-      "upper_95": 0.999,
+      "hazard_ratio": 0.979,
+      "lower_95": 0.9755,
+      "upper_95": 0.9825,
       "p_value": 0.0
     },
     {
       "covariate": "PaymentMethod_Credit card (automatic)",
-      "hazard_ratio": 0.9408,
-      "lower_95": 0.7982,
-      "upper_95": 1.1088,
-      "p_value": 0.466652
+      "hazard_ratio": 0.9082,
+      "lower_95": 0.771,
+      "upper_95": 1.0698,
+      "p_value": 0.24906
     },
     {
       "covariate": "TechSupport_Yes",
-      "hazard_ratio": 0.7952,
-      "lower_95": 0.7008,
-      "upper_95": 0.9024,
-      "p_value": 0.000382
+      "hazard_ratio": 0.6988,
+      "lower_95": 0.6159,
+      "upper_95": 0.7928,
+      "p_value": 0.0
     },
     {
       "covariate": "TechSupport_No internet service",
-      "hazard_ratio": 0.5063,
-      "lower_95": 0.3329,
-      "upper_95": 0.7701,
-      "p_value": 0.001468
+      "hazard_ratio": 0.5649,
+      "lower_95": 0.3725,
+      "upper_95": 0.8566,
+      "p_value": 0.007179
     },
     {
       "covariate": "InternetService_No",
-      "hazard_ratio": 0.5063,
-      "lower_95": 0.3329,
-      "upper_95": 0.7701,
-      "p_value": 0.001468
+      "hazard_ratio": 0.5649,
+      "lower_95": 0.3725,
+      "upper_95": 0.8566,
+      "p_value": 0.007179
     },
     {
       "covariate": "Contract_One year",
-      "hazard_ratio": 0.336,
-      "lower_95": 0.2837,
-      "upper_95": 0.398,
+      "hazard_ratio": 0.205,
+      "lower_95": 0.1755,
+      "upper_95": 0.2395,
       "p_value": 0.0
     },
     {
       "covariate": "Contract_Two year",
-      "hazard_ratio": 0.0746,
-      "lower_95": 0.0571,
-      "upper_95": 0.0974,
+      "hazard_ratio": 0.0641,
+      "lower_95": 0.051,
+      "upper_95": 0.0806,
       "p_value": 0.0
     }
-  ]
+  ],
+  "methodology_notes": {
+    "total_charges_handling": "TotalCharges excluded from Cox regression to avoid collinearity with duration tenure (TotalCharges ~= tenure * MonthlyCharges).",
+    "cross_sectional_limitations": [
+      "Cross-sectional observational snapshot implies left-truncation and survivor selection (longer-surviving customers over-represented).",
+      "Covariates like Contract and PaymentMethod are recorded as static current state rather than time-varying histories."
+    ]
+  }
 }

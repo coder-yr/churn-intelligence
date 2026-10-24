@@ -14,7 +14,7 @@ In standard classification (Phase 5), we predicted a binary question: *"Will thi
 **Survival Analysis** models the dynamic temporal question: *"When is this customer expected to churn, and what is their expected remaining relationship duration?"*
 
 ### 1.1 Time-to-Event Terminology
-- **Duration ($T$)**: The duration in months a customer has maintained an account (`tenure`).
+- **Duration ($T$)**: The duration in months a customer has maintained an active account (`tenure`).
 - **Event ($E$)**: Binary indicator `churn_label` ($E=1$ if account churned, $E=0$ if active).
 - **Survival Function ($S(t)$)**: The probability that a customer remains active longer than month $t$:
   $$S(t) = P(T > t)$$
@@ -28,16 +28,16 @@ If you run standard linear regression to predict `tenure`, you commit a fatal er
 
 ---
 
-## 2. Crucial Methodological Limitation of the Telco Dataset
+## 2. Crucial Methodological Limitations of the Telco Dataset
 
 In technical interviews and senior architecture reviews, highlighting data limitations demonstrates mature engineering judgment:
 
 > [!WARNING]
-> **Cross-Sectional Snapshot Limitation**:
+> **Cross-Sectional Snapshot Limitations**:
 > 1. The IBM Telco dataset is an observational cross-sectional snapshot, not a longitudinal tracking panel. We do not have calendar timestamps (e.g. signup date vs cancellation date).
 > 2. Customers who joined 5 years ago entered under different market pricing than customers who joined 2 months ago (cohort vintage effects).
 > 3. Features like `Contract` or `MonthlyCharges` are recorded as of the snapshot date. We cannot observe whether a churned customer switched from a 1-year contract to month-to-month right before canceling (time-varying covariates).
-> 4. **Best Practice Applied**: We treat `tenure` strictly as duration-at-observation, use non-parametric Kaplan-Meier for cohort survival curves, and apply regularized Cox Proportional Hazards for relative risk comparisons rather than claiming deterministic calendar survival dates.
+> 4. **Exclusion of `TotalCharges`**: Cumulative charges were explicitly excluded from the multivariable Cox model because $\text{TotalCharges} \approx \text{tenure} \times \text{MonthlyCharges}$. Including a cumulative duration product as a baseline static covariate creates artificial multi-collinearity with the duration outcome $T$. Removing it yields an authentic, non-inflated **Concordance Index of 0.8432**.
 
 ---
 
@@ -68,23 +68,24 @@ In technical interviews and senior architecture reviews, highlighting data limit
 
 The multivariable Cox model estimates the relative risk multiplier (Hazard Ratio $HR = e^\beta$) for each customer attribute, controlling for other variables simultaneously:
 
-$$\text{Concordance Index (C-Index)} = \mathbf{0.9247}$$
-*(A C-index of 0.925 indicates outstanding discriminative ability across customer survival pairs).*
+$$\text{Concordance Index (C-Index)} = \mathbf{0.8432}$$
+*(A C-index of 0.843 confirms strong discriminative ability across customer survival pairs without duration leakage).*
 
 ### Top Hazard Ratios ($HR = e^\beta$)
 
 | Covariate | Hazard Ratio ($HR$) | 95% Confidence Interval | $p$-value | Risk Interpretation |
 | :--- | :---: | :---: | :---: | :--- |
-| **`InternetService_Fiber optic`** | **2.263** | [1.95, 2.63] | $< 0.0001$ | **$2.26\times$ hazard multiplier**. Fiber users churn at more than double the rate of DSL users, ceteris paribus. |
-| **`PaymentMethod_Mailed check`** | **1.603** | [1.32, 1.95] | $< 0.0001$ | **$60\%$ elevated hazard** compared to automated bank transfers. |
-| **`PaymentMethod_Electronic check`** | **1.564** | [1.35, 1.81] | $< 0.0001$ | **$56\%$ elevated hazard** compared to automated bank transfers. |
-| **`PaperlessBilling_Yes`** | **1.231** | [1.11, 1.37] | $0.0001$ | **$23\%$ elevated hazard** compared to paper billing. |
-| **`MonthlyCharges`** | **1.018** | [1.01, 1.02] | $< 0.0001$ | Each $+\$10/\text{mo}$ increases churn hazard by **$\approx 18\%$**. |
-| **`Contract_Two year`** | **0.091** | [0.06, 0.14] | $< 0.0001$ | **$91\%$ hazard reduction** ($HR < 0.10$). Extreme protective retention anchor. |
+| **`InternetService_Fiber optic`** | **2.755** | [2.36, 3.21] | $< 0.0001$ | **$2.76\times$ hazard multiplier**. Fiber users experience highest relative churn hazard. |
+| **`PaymentMethod_Mailed check`** | **1.891** | [1.57, 2.28] | $< 0.0001$ | **$89\%$ elevated hazard** compared to automated bank transfers. |
+| **`PaymentMethod_Electronic check`** | **1.876** | [1.61, 2.18] | $< 0.0001$ | **$88\%$ elevated hazard** compared to automated bank transfers. |
+| **`PaperlessBilling_Yes`** | **1.198** | [1.07, 1.34] | $0.0010$ | **$20\%$ elevated hazard**. |
+| **`TechSupport_Yes`** | **0.699** | [0.60, 0.81] | $< 0.0001$ | **$30\%$ hazard reduction**. Significant protective factor. |
+| **`Contract_One year`** | **0.205** | [0.17, 0.25] | $< 0.0001$ | **$79.5\%$ hazard reduction**. |
+| **`Contract_Two year`** | **0.064** | [0.04, 0.10] | $< 0.0001$ | **$93.6\%$ hazard reduction**. Extreme protective retention anchor. |
 
 ---
 
 ## 5. Architectural Bridge to Phase 8 (Customer Lifetime Value)
 
-The survival functions estimated here provide the empirical foundation for **Customer Lifetime Value (CLV)** in Phase 8:
-- Rather than assuming a constant, naive retention rate for all customers, CLV will integrate the **expected survival curve $S(t)$** specific to each customer's contract, tenure, and service tier over a discounted future cash flow horizon.
+The survival functions estimated here provide the empirical foundation for **Customer Lifetime Value (CLV)**:
+- Rather than assuming a constant, naive retention rate for all customers, forward CLV integrates the **expected survival curve $S(t)$** specific to each customer's contract, tenure, and service tier over a discounted future cash flow horizon.

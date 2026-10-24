@@ -90,6 +90,97 @@
       "monthly_to_total_ratio": 0.9859
     }
   },
+  "moderate_risk_customer": {
+    "customerID": "9469-WEJBT",
+    "predicted_churn_probability": 0.5,
+    "base_value_margin": -0.68,
+    "total_shap_sum": 0.6798,
+    "risk_drivers": [
+      {
+        "feature": "Contract_Two year",
+        "shap_value": 0.4811,
+        "feature_value": 0.0
+      },
+      {
+        "feature": "InternetService_Fiber optic",
+        "shap_value": 0.2505,
+        "feature_value": 1.0
+      },
+      {
+        "feature": "Contract_One year",
+        "shap_value": 0.1658,
+        "feature_value": 0.0
+      },
+      {
+        "feature": "PaymentMethod_Electronic check",
+        "shap_value": 0.1221,
+        "feature_value": 1.0
+      },
+      {
+        "feature": "StreamingMovies_Yes",
+        "shap_value": 0.0392,
+        "feature_value": 1.0
+      }
+    ],
+    "protective_drivers": [
+      {
+        "feature": "monthly_to_total_ratio",
+        "shap_value": -0.1775,
+        "feature_value": -0.0986
+      },
+      {
+        "feature": "has_fiber_no_support",
+        "shap_value": -0.1112,
+        "feature_value": -0.6766
+      },
+      {
+        "feature": "tenure",
+        "shap_value": -0.0998,
+        "feature_value": 0.1898
+      },
+      {
+        "feature": "MonthlyCharges",
+        "shap_value": -0.0423,
+        "feature_value": 0.8499
+      },
+      {
+        "feature": "TotalCharges",
+        "shap_value": -0.0183,
+        "feature_value": 0.5009
+      }
+    ],
+    "customer_profile": {
+      "customerID": "9469-WEJBT",
+      "gender": "Male",
+      "SeniorCitizen": 0,
+      "Partner": "Yes",
+      "Dependents": "No",
+      "tenure": 37,
+      "PhoneService": "Yes",
+      "MultipleLines": "No",
+      "InternetService": "Fiber optic",
+      "OnlineSecurity": "No",
+      "OnlineBackup": "No",
+      "DeviceProtection": "Yes",
+      "TechSupport": "Yes",
+      "StreamingTV": "No",
+      "StreamingMovies": "Yes",
+      "Contract": "Month-to-month",
+      "PaperlessBilling": "Yes",
+      "PaymentMethod": "Electronic check",
+      "MonthlyCharges": 90.35,
+      "TotalCharges": 3419.3,
+      "Churn": "No",
+      "churn_label": 0,
+      "tenure_cohort": "37-48m",
+      "num_services_subscribed": 5,
+      "num_security_services": 2,
+      "is_automatic_payment": 0,
+      "has_fiber_no_support": 0,
+      "charge_per_tenure_month": 89.98,
+      "monthly_to_total_ratio": 0.0264
+    }
+  },
   "low_risk_customer": {
     "customerID": "6919-ELBGL",
     "predicted_churn_probability": 0.0649,

@@ -110,12 +110,17 @@ def get_engine(database_url: Optional[str] = None) -> Engine:
         safe_url = mask_database_url(url)
         logger.info("Initializing SQLAlchemy engine for: %s", safe_url)
 
+        connect_args = {}
+        if "postgresql" in url:
+            connect_args["sslmode"] = "require"
+
         _ENGINE = create_engine(
             url,
             pool_size=5,
             max_overflow=10,
             pool_pre_ping=True,
             pool_recycle=300,
+            connect_args=connect_args,
         )
         _SESSION_FACTORY = sessionmaker(bind=_ENGINE)
 

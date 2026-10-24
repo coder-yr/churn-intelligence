@@ -232,14 +232,17 @@ def run_explainability_pipeline():
     with open(MODELS_DIR / "shap_feature_importance.json", "w") as f:
         json.dump(global_ranking, f, indent=2)
 
-    # 5. Explain sample high-risk and low-risk customers
-    # Find a high-churn customer and a low-churn customer
+    # 5. Explain sample high-risk, moderate-risk, and low-risk customers
     probas = model.predict_proba(X_test)[:, 1]
     high_risk_idx = int(np.argmax(probas))
     low_risk_idx = int(np.argmin(probas))
+    moderate_risk_idx = int(np.argmin(np.abs(probas - 0.50)))
 
     high_risk_explanation = explain_single_customer(
         high_risk_idx, explainer, X_test, test_unprocessed
+    )
+    moderate_risk_explanation = explain_single_customer(
+        moderate_risk_idx, explainer, X_test, test_unprocessed
     )
     low_risk_explanation = explain_single_customer(
         low_risk_idx, explainer, X_test, test_unprocessed
@@ -247,6 +250,7 @@ def run_explainability_pipeline():
 
     sample_explanations = {
         "high_risk_customer": high_risk_explanation,
+        "moderate_risk_customer": moderate_risk_explanation,
         "low_risk_customer": low_risk_explanation,
     }
     with open(MODELS_DIR / "sample_customer_explanations.json", "w") as f:

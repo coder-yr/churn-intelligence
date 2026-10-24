@@ -121,12 +121,14 @@ def fit_cox_proportional_hazards(df: pd.DataFrame) -> Tuple[CoxPHFitter, pd.Data
     """
     logger.info("Fitting Cox Proportional Hazards Model...")
 
-    # Select representative features for survival regression
+    # Select representative baseline covariates for survival regression
+    # NOTE: TotalCharges is explicitly EXCLUDED here because TotalCharges is mechanically
+    # cumulative over tenure (TotalCharges ~= tenure * MonthlyCharges). Including a cumulative
+    # duration product violates baseline exogeneity and causes severe multi-collinearity with tenure.
     cols = [
         "tenure",
         "churn_label",
         "MonthlyCharges",
-        "TotalCharges",
         "Contract",
         "InternetService",
         "TechSupport",
@@ -260,6 +262,13 @@ def run_survival_pipeline() -> Dict[str, Any]:
         "tech_support_survival": tech_metrics,
         "cox_c_index": round(float(cph_model.concordance_index_), 4),
         "top_hazard_ratios": cox_hr_df.to_dict(orient="records"),
+        "methodology_notes": {
+            "total_charges_handling": "TotalCharges excluded from Cox regression to avoid collinearity with duration tenure (TotalCharges ~= tenure * MonthlyCharges).",
+            "cross_sectional_limitations": [
+                "Cross-sectional observational snapshot implies left-truncation and survivor selection (longer-surviving customers over-represented).",
+                "Covariates like Contract and PaymentMethod are recorded as static current state rather than time-varying histories.",
+            ],
+        },
     }
     with open(MODELS_DIR / "survival_metrics.json", "w") as f:
         json.dump(metrics_summary, f, indent=2)

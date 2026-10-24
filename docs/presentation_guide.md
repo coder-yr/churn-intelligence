@@ -40,18 +40,19 @@ This document provides a structured, time-stamped script and technical defense s
 
 ---
 
-### Minute 3:30 – 5:00 | Churn Modeling, Cost-Benefit Optimization & TreeSHAP
+### Minute 3:30 – 5:00 | Churn Modeling, Anti-Leakage Threshold Optimization & TreeSHAP
 - **Model Selection**:
   - Evaluated Dummy Classifier (73.5% accuracy, 0% recall), Balanced Logistic Regression (0.845 ROC-AUC), and **LightGBM** with `scale_pos_weight = 2.77`.
-  - LightGBM achieved **0.842 ROC-AUC** and **0.655 PR-AUC** (compared to a 0.265 random baseline).
-- **Threshold Optimization**:
-  - Evaluated financial cost curve: $\text{Total Cost} = 20 \cdot FP + 120 \cdot FN$.
-  - The cost-minimizing threshold is **`0.28`** (not 0.50!).
-  - At `0.28`, test recall jumped from **71.79% to 92.86%**, catching **260 out of 280 churners** and creating +$800 in net benefit on the test slice alone.
+  - LightGBM achieved **0.843 ROC-AUC** and **0.635 PR-AUC** on the held-out test set.
+- **Anti-Leakage Threshold Optimization**:
+  - Simulated business cost curve exclusively on the **validation partition**: $\text{Total Cost} = 20 \cdot FP + 120 \cdot FN$.
+  - The profit-maximizing threshold selected on validation is **`0.27`** (not a naive 0.50 cutoff!).
+  - Evaluating this frozen `0.27` threshold on the **held-out test set**, test recall reached **93.57%**, catching **262 out of 280 churners** and creating **+$700.00** in net financial benefit on the test slice alone.
 - **Model Explainability (TreeSHAP)**:
   - Verified exact additivity: $\text{Expected Margin} + \sum \text{SHAP} = \text{Model Output}$.
   - Top churn drivers: Month-to-Month contracts (+0.59 SHAP), Fiber Optic (+0.16 SHAP), High Monthly-to-Total charge ratio (+0.15 SHAP).
   - Top retention drivers: Two-Year contracts (-0.62 SHAP), One-Year contracts (-0.29 SHAP).
+  - *Technical Rigor*: Explicitly note that SHAP measures predictive feature association, not causal mechanisms.
 
 ---
 
@@ -61,10 +62,11 @@ This document provides a structured, time-stamped script and technical defense s
   - Fitted **Kaplan-Meier survival curves**:
     - Month-to-Month customers have a median survival half-life of **35 months**.
     - One-Year and Two-Year contract customers have median survival exceeding **72 months** (Log-rank test: $p < 0.0001$).
-  - Fitted multivariable **Cox Proportional Hazards** (**C-index: 0.9247**):
-    - Fiber Optic hazard multiplier: **2.26x** (+126% risk).
-    - Electronic Check payment multiplier: **1.56x** (+56% risk).
-    - Two-Year Contract multiplier: **0.091x** (-91% risk).
+  - Fitted multivariable **Cox Proportional Hazards** (**C-index: 0.8432**):
+    - *Methodological Defense*: Cumulative `TotalCharges` was explicitly excluded from covariates because $\text{TotalCharges} \approx \text{tenure} \times \text{MonthlyCharges}$, which creates artificial collinearity with the duration variable $T$.
+    - Fiber Optic hazard multiplier: **2.76x** (+176% risk).
+    - Electronic Check payment multiplier: **1.88x** (+88% risk).
+    - Two-Year Contract multiplier: **0.064x** (-93.6% risk).
 - **Forward Discounted Cash Flow (DCF) CLV**:
   - Separated revenue from gross profit using 70% gross margin.
   - Discounted future cash flows using corporate WACC (10% annual, 0.797% monthly).
@@ -131,6 +133,6 @@ This document provides a structured, time-stamped script and technical defense s
 
 ---
 
-### Q5: "How do you explain the trade-off of lowering your threshold from 0.50 to 0.28?"
+### Q5: "How do you explain the trade-off of lowering your threshold from 0.50 to 0.27, and how did you prevent evaluation leakage?"
 > **Answer**:  
-> *"Lowering the threshold from 0.50 to 0.28 increases the number of False Positives (from 148 to 326) and decreases precision (from 57.6% to 44.4%). However, it dramatically reduces False Negatives (from 79 to 20), boosting recall from 71.8% to 92.9%. Because a False Negative costs the business $120 in lost revenue while a False Positive costs only $20 in outreach, the financial penalty of missing a churner is 6 times higher. Minimizing the business loss function strictly dictates operating at 0.28, which yields a higher net financial benefit."*
+> *"First, to prevent evaluation leakage, I tuned the decision threshold strictly on the validation set, never touching test data. The profit-maximizing threshold on validation was 0.27. Second, when evaluated on the held-out test set, lowering the threshold from 0.50 to 0.27 increased False Positives (from 165 to 381) and lowered precision (from 55.8% to 40.8%), but dramatically reduced False Negatives (from 72 to 18), boosting test recall from 74.3% to 93.6%. Because missing a churner costs $120 while sending an offer costs only $20, a False Negative is 6 times more expensive than a False Positive. Minimizing the business loss function strictly favors 0.27, generating a net financial benefit of +$700 on the test slice."*

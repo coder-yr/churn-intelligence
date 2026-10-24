@@ -1,16 +1,18 @@
 """Model Training, Threshold Optimization, and Evaluation Pipeline.
 
-Trains:
+Remediated to guarantee strict anti-leakage evaluation:
 1. Baseline 1: Dummy Most-Frequent Classifier (demonstrates accuracy paradox).
-2. Baseline 2: Logistic Regression (interpretable linear baseline).
+2. Baseline 2: Logistic Regression (interpretable balanced linear baseline).
 3. Primary Model: LightGBM Classifier (gradient boosting with class-weight handling).
 
-Evaluates:
-- Accuracy, Precision, Recall, F1-Score, ROC-AUC, Average Precision (PR-AUC).
-- Business Cost-Benefit Decision Threshold Optimization.
-- Confusion matrices and diagnostic curves saved to reports/figures/.
+Evaluation Flow:
+- Training set: Model fit.
+- Validation set: Early stopping and business-cost threshold selection.
+- Test set: Frozen evaluation of final model at default (0.50) and selected threshold.
+  Test labels are strictly held out and never used for tuning or threshold selection.
 """
 
+from datetime import datetime, timezone
 import json
 import logging
 from pathlib import Path
@@ -28,7 +30,6 @@ from sklearn.metrics import (
     accuracy_score,
     average_precision_score,
     brier_score_loss,
-    classification_report,
     confusion_matrix,
     f1_score,
     precision_recall_curve,
@@ -48,6 +49,13 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
 MODELS_DIR = PROJECT_ROOT / "models"
 FIGURES_DIR = PROJECT_ROOT / "reports" / "figures"
+
+# Documented business-cost parameters
+BUSINESS_ASSUMPTIONS = {
+    "cost_offer": 20.0,         # Cost per targeted retention offer ($)
+    "offer_save_rate": 0.50,    # Expected success rate of retention offer among true churners
+    "customer_margin": 120.0,   # Expected gross margin preserved from retained customer ($)
+}
 
 
 def load_feature_splits() -> Tuple[
@@ -121,8 +129,7 @@ def train_lightgbm_model(
     X_test: pd.DataFrame,
     y_test: np.ndarray,
 ) -> Dict[str, Any]:
-    """Train and evaluate the LightGBM Classifier with class imbalance weighting."""
-    # Class imbalance ratio: ~ 2.77 to 1
+    """Train LightGBM Classifier with validation early stopping and separate split predictions."""
     imbalance_ratio = float((len(y_train) - y_train.sum()) / y_train.sum())
 
     model = lgb.LGBMClassifier(
@@ -138,7 +145,7 @@ def train_lightgbm_model(
         verbose=-1,
     )
 
-    logger.info("Training LightGBM Classifier (scale_pos_weight=%.2f)...", imbalance_ratio)
+    logger.info("Training LightGBM Classifier on Train split (scale_pos_weight=%.2f)...", imbalance_ratio)
     model.fit(
         X_train,
         y_train,
@@ -147,17 +154,21 @@ def train_lightgbm_model(
         callbacks=[lgb.early_stopping(stopping_rounds=30, verbose=False)],
     )
 
-    # Predictions on test set (at default threshold 0.5)
-    y_proba = model.predict_proba(X_test)[:, 1]
-    y_pred_default = (y_proba >= 0.5).astype(int)
+    # Probabilities on validation (for threshold selection) and test (for held-out evaluation)
+    y_val_proba = model.predict_proba(X_val)[:, 1]
+    y_test_proba = model.predict_proba(X_test)[:, 1]
 
-    metrics = compute_metrics(y_test, y_pred_default, y_proba)
+    # Default 0.50 threshold evaluation on test
+    y_test_pred_default = (y_test_proba >= 0.50).astype(int)
+    test_metrics_default = compute_metrics(y_test, y_test_pred_default, y_test_proba)
+
     return {
         "model": model,
-        "metrics": metrics,
-        "y_proba": y_proba,
-        "y_pred": y_pred_default,
-        "best_iteration": model.best_iteration_,
+        "best_iteration": int(model.best_iteration_),
+        "y_val_proba": y_val_proba,
+        "y_test_proba": y_test_proba,
+        "y_test_pred_default": y_test_pred_default,
+        "test_metrics_default": test_metrics_default,
     }
 
 
@@ -168,10 +179,10 @@ def optimize_business_threshold(
     offer_save_rate: float = 0.50,
     customer_margin: float = 120.0,
 ) -> Tuple[float, Dict[str, Any], pd.DataFrame]:
-    """Find the threshold that maximizes campaign financial net benefit.
+    """Find the threshold that maximizes campaign financial net benefit on the tuning split.
 
     Business Economics:
-    - True Positive (TP): Customer at risk. Contacted with $20 offer.
+    - True Positive (TP): Customer at risk. Contacted with offer ($20).
       With 50% save rate, we preserve $120 margin. Expected net = (0.50 * 120) - 20 = +$40.
     - False Positive (FP): Retained customer unnecessarily given $20 discount. Net = -$20.
     - False Negative (FN): We failed to predict churn. Customer leaves; we lose $120. Net = -$120.
@@ -185,7 +196,7 @@ def optimize_business_threshold(
     cost_fn = -customer_margin                                  # -120
     cost_tn = 0.0
 
-    best_threshold = 0.5
+    best_threshold = 0.50
     max_net_value = -float("inf")
     best_stats = {}
 
@@ -224,15 +235,47 @@ def optimize_business_threshold(
 
     df_thresholds = pd.DataFrame(results)
     logger.info(
-        f"Optimal business threshold: {best_threshold:.2f} (Net Value: ${max_net_value:,.2f}, Recall: {best_stats['recall']*100:.1f}%, F1: {best_stats['f1_score']:.3f})"
+        "Optimal business threshold selected on validation split: %.2f (Net Value: $%.2f, Recall: %.1f%%, F1: %.3f)",
+        best_threshold, float(max_net_value), float(best_stats["recall"]) * 100, float(best_stats["f1_score"])
     )
     return best_threshold, best_stats, df_thresholds
 
 
+def evaluate_frozen_threshold_on_test(
+    y_test: np.ndarray,
+    y_test_proba: np.ndarray,
+    optimal_threshold: float,
+    cost_offer: float = 20.0,
+    offer_save_rate: float = 0.50,
+    customer_margin: float = 120.0,
+) -> Dict[str, Any]:
+    """Evaluate frozen optimal threshold on the held-out test set."""
+    y_test_pred = (y_test_proba >= optimal_threshold).astype(int)
+    test_metrics = compute_metrics(y_test, y_test_pred, y_test_proba)
+
+    tn, fp, fn, tp = confusion_matrix(y_test, y_test_pred).ravel()
+    gain_tp = (offer_save_rate * customer_margin) - cost_offer
+    cost_fp = -cost_offer
+    cost_fn = -customer_margin
+    net_value = (tp * gain_tp) + (fp * cost_fp) + (fn * cost_fn)
+
+    test_evaluation = {
+        "applied_threshold": float(optimal_threshold),
+        "metrics": test_metrics,
+        "net_financial_value": round(float(net_value), 2),
+        "confusion_matrix": {"tn": int(tn), "fp": int(fp), "fn": int(fn), "tp": int(tp)},
+    }
+    logger.info(
+        "Frozen test evaluation at threshold %.2f: Recall=%.2f%%, Net Value=$%.2f",
+        optimal_threshold, float(test_metrics["recall"]) * 100, float(net_value)
+    )
+    return test_evaluation
+
+
 def plot_evaluation_charts(
     y_test: np.ndarray,
-    results: Dict[str, Any],
-    threshold_df: pd.DataFrame,
+    all_results: Dict[str, Any],
+    val_threshold_df: pd.DataFrame,
     optimal_threshold: float,
     output_dir: Path,
 ):
@@ -240,45 +283,45 @@ def plot_evaluation_charts(
     sns.set_theme(style="whitegrid")
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # 1. ROC Curves Comparison
+    # 1. ROC Curves Comparison (Test Set)
     fig, ax = plt.subplots(figsize=(7, 6))
-    for name, res in results.items():
+    for name, res in all_results.items():
         fpr, tpr, _ = roc_curve(y_test, res["y_proba"])
         auc_val = res["metrics"]["roc_auc"]
         ax.plot(fpr, tpr, label=f"{name} (AUC = {auc_val:.3f})", linewidth=2)
     ax.plot([0, 1], [0, 1], "k--", alpha=0.5, label="Random Chance (0.50)")
-    ax.set_title("Receiver Operating Characteristic (ROC) Curve", fontweight="bold", pad=12)
+    ax.set_title("Test Set: Receiver Operating Characteristic (ROC) Curve", fontweight="bold", pad=12)
     ax.set_xlabel("False Positive Rate (1 - Specificity)")
     ax.set_ylabel("True Positive Rate (Recall)")
     ax.legend(loc="lower right")
     fig.savefig(output_dir / "07_roc_curve.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
 
-    # 2. Precision-Recall Curve (LightGBM)
+    # 2. Precision-Recall Curves (Test Set)
     fig, ax = plt.subplots(figsize=(7, 6))
-    for name, res in results.items():
+    for name, res in all_results.items():
         p, r, _ = precision_recall_curve(y_test, res["y_proba"])
         pr_auc = res["metrics"]["pr_auc"]
         ax.plot(r, p, label=f"{name} (PR-AUC = {pr_auc:.3f})", linewidth=2)
-    baseline_churn = y_test.mean()
+    baseline_churn = float(y_test.mean())
     ax.axhline(baseline_churn, color="k", linestyle="--", alpha=0.5, label=f"No Skill ({baseline_churn:.3f})")
-    ax.set_title("Precision-Recall Curve (PR-AUC)", fontweight="bold", pad=12)
+    ax.set_title("Test Set: Precision-Recall Curve (PR-AUC)", fontweight="bold", pad=12)
     ax.set_xlabel("Recall (Sensitivity)")
     ax.set_ylabel("Precision (Positive Predictive Value)")
     ax.legend(loc="lower left")
     fig.savefig(output_dir / "08_precision_recall_curve.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
 
-    # 3. Confusion Matrices (Default 0.5 vs Optimal Threshold)
+    # 3. Confusion Matrices on Held-out Test Set (Default 0.5 vs Frozen Optimal Threshold)
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
-    lgb_proba = results["LightGBM"]["y_proba"]
+    lgb_test_proba = all_results["LightGBM"]["y_proba"]
 
     for ax, t, title in zip(
         axes,
         [0.50, optimal_threshold],
-        ["Default Threshold (0.50)", f"Cost-Optimal Threshold ({optimal_threshold:.2f})"],
+        ["Default Threshold (0.50)", f"Frozen Optimal Threshold ({optimal_threshold:.2f})"],
     ):
-        preds = (lgb_proba >= t).astype(int)
+        preds = (lgb_test_proba >= t).astype(int)
         cm = confusion_matrix(y_test, preds)
         sns.heatmap(
             cm,
@@ -290,31 +333,31 @@ def plot_evaluation_charts(
             xticklabels=["Retained", "Churned"],
             yticklabels=["Retained", "Churned"],
         )
-        ax.set_title(title, fontweight="bold")
+        ax.set_title(f"Test Set: {title}", fontweight="bold")
         ax.set_xlabel("Predicted")
         ax.set_ylabel("Actual")
     fig.savefig(output_dir / "09_confusion_matrices.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
 
-    # 4. Cost-Benefit Threshold Curve
+    # 4. Cost-Benefit Threshold Curve (Selected on Validation Set)
     fig, ax1 = plt.subplots(figsize=(8, 5))
     color = "#2b5c8f"
-    ax1.set_xlabel("Decision Threshold")
-    ax1.set_ylabel("Net Financial Value ($)", color=color, fontweight="bold")
-    ax1.plot(threshold_df["threshold"], threshold_df["net_value"], color=color, linewidth=2.5)
+    ax1.set_xlabel("Decision Threshold (Tuned on Validation Set)")
+    ax1.set_ylabel("Validation Net Financial Value ($)", color=color, fontweight="bold")
+    ax1.plot(val_threshold_df["threshold"], val_threshold_df["net_value"], color=color, linewidth=2.5)
     ax1.tick_params(axis="y", labelcolor=color)
-    ax1.axvline(optimal_threshold, color="#d9534f", linestyle="--", label=f"Optimal: {optimal_threshold:.2f}")
+    ax1.axvline(optimal_threshold, color="#d9534f", linestyle="--", label=f"Selected Threshold: {optimal_threshold:.2f}")
 
     ax2 = ax1.twinx()
     ax2.set_ylabel("Metric Score", color="#5cb85c", fontweight="bold")
-    ax2.plot(threshold_df["threshold"], threshold_df["f1_score"], color="#5cb85c", linestyle=":", label="F1-Score")
-    ax2.plot(threshold_df["threshold"], threshold_df["recall"], color="#f0ad4e", linestyle="-.", label="Recall")
+    ax2.plot(val_threshold_df["threshold"], val_threshold_df["f1_score"], color="#5cb85c", linestyle=":", label="Validation F1")
+    ax2.plot(val_threshold_df["threshold"], val_threshold_df["recall"], color="#f0ad4e", linestyle="-.", label="Validation Recall")
     ax2.tick_params(axis="y", labelcolor="#5cb85c")
 
     lines1, labels1 = ax1.get_legend_handles_labels()
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax1.legend(lines1 + lines2, labels1 + labels2, loc="upper right")
-    ax1.set_title("Campaign Profit & Metric Trade-Off by Decision Threshold", pad=12, fontweight="bold")
+    ax1.set_title("Validation Set: Cost-Benefit Threshold Selection", pad=12, fontweight="bold")
     fig.savefig(output_dir / "10_cost_threshold_curve.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
 
@@ -322,7 +365,7 @@ def plot_evaluation_charts(
 
 
 def run_training_pipeline() -> Dict[str, Any]:
-    """Execute model training, threshold tuning, and artifact generation."""
+    """Execute model training, validation-based threshold selection, and test evaluation."""
     X_train, X_val, X_test, y_train, y_val, y_test = load_feature_splits()
 
     # 1. Train Baselines
@@ -332,59 +375,108 @@ def run_training_pipeline() -> Dict[str, Any]:
     logger.info("Training Logistic Regression Baseline...")
     lr_res = train_logistic_baseline(X_train, y_train, X_test, y_test)
 
-    # 2. Train LightGBM
+    # 2. Train LightGBM with Early Stopping on Validation Split
     lgb_res = train_lightgbm_model(X_train, y_train, X_val, y_val, X_test, y_test)
 
-    all_results = {
-        "Dummy (Most Frequent)": dummy_res,
-        "Logistic Regression (Balanced)": lr_res,
-        "LightGBM": lgb_res,
-    }
-
-    # 3. Optimize decision threshold for LightGBM
-    opt_threshold, opt_stats, threshold_df = optimize_business_threshold(
-        y_test, lgb_res["y_proba"]
+    # 3. SELECT THRESHOLD ON VALIDATION SET ONLY (Strict Anti-Leakage)
+    logger.info("Optimizing business decision threshold on VALIDATION set...")
+    opt_threshold, val_opt_stats, val_threshold_df = optimize_business_threshold(
+        y_true=y_val,
+        y_proba=lgb_res["y_val_proba"],
+        cost_offer=BUSINESS_ASSUMPTIONS["cost_offer"],
+        offer_save_rate=BUSINESS_ASSUMPTIONS["offer_save_rate"],
+        customer_margin=BUSINESS_ASSUMPTIONS["customer_margin"],
     )
 
-    # 4. Generate evaluation figures
-    plot_evaluation_charts(y_test, all_results, threshold_df, opt_threshold, FIGURES_DIR)
+    # 4. FREEZE MODEL & THRESHOLD; EVALUATE STRICTLY ON TEST SET
+    logger.info("Evaluating frozen LightGBM model and threshold on HELD-OUT TEST set...")
+    test_eval_opt = evaluate_frozen_threshold_on_test(
+        y_test=y_test,
+        y_test_proba=lgb_res["y_test_proba"],
+        optimal_threshold=opt_threshold,
+        cost_offer=BUSINESS_ASSUMPTIONS["cost_offer"],
+        offer_save_rate=BUSINESS_ASSUMPTIONS["offer_save_rate"],
+        customer_margin=BUSINESS_ASSUMPTIONS["customer_margin"],
+    )
 
-    # 5. Save Model and Metadata
+    all_test_results = {
+        "Dummy (Most Frequent)": dummy_res,
+        "Logistic Regression (Balanced)": lr_res,
+        "LightGBM": {
+            "model": lgb_res["model"],
+            "metrics": lgb_res["test_metrics_default"],
+            "y_proba": lgb_res["y_test_proba"],
+            "y_pred": lgb_res["y_test_pred_default"],
+        },
+    }
+
+    # 5. Generate Evaluation Charts from Corrected Flow
+    plot_evaluation_charts(
+        y_test=y_test,
+        all_results=all_test_results,
+        val_threshold_df=val_threshold_df,
+        optimal_threshold=opt_threshold,
+        output_dir=FIGURES_DIR,
+    )
+
+    # 6. Save Model Artifact and Full Provenance Metadata
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     model_artifact_path = MODELS_DIR / "churn_lightgbm.joblib"
+    evaluation_timestamp = datetime.now(timezone.utc).isoformat()
+
+    metadata = {
+        "random_seed": 42,
+        "feature_names": X_train.columns.tolist(),
+        "threshold_selection_split": "validation",
+        "optimal_threshold": opt_threshold,
+        "default_threshold": 0.50,
+        "best_iteration": lgb_res["best_iteration"],
+        "evaluation_date": evaluation_timestamp,
+        "assumptions": BUSINESS_ASSUMPTIONS,
+        "split_sizes": {
+            "train": len(X_train),
+            "val": len(X_val),
+            "test": len(X_test),
+        },
+    }
+
     joblib.dump(
         {
             "model": lgb_res["model"],
+            "metadata": metadata,
             "optimal_threshold": opt_threshold,
             "default_threshold": 0.50,
             "best_iteration": lgb_res["best_iteration"],
         },
         model_artifact_path,
     )
-    logger.info("Saved trained LightGBM model artifact to %s", model_artifact_path)
+    logger.info("Saved trained LightGBM model artifact with metadata to %s", model_artifact_path)
 
-    # Save metrics JSON
+    # 7. Save Comprehensive Authoritative Metrics JSON
     metrics_summary = {
+        "metadata": metadata,
+        "validation_threshold_tuning": val_opt_stats,
+        "test_evaluation_default_threshold": lgb_res["test_metrics_default"],
+        "test_evaluation_optimal_threshold": test_eval_opt,
         "dummy_baseline": dummy_res["metrics"],
         "logistic_regression": lr_res["metrics"],
-        "lightgbm_default_threshold": lgb_res["metrics"],
-        "lightgbm_optimal_threshold": opt_stats,
     }
+
     with open(MODELS_DIR / "model_metrics.json", "w") as f:
         json.dump(metrics_summary, f, indent=2)
 
+    logger.info("Saved authoritative evaluation metrics to %s", MODELS_DIR / "model_metrics.json")
     return metrics_summary
 
 
 if __name__ == "__main__":
     print("\n" + "=" * 60)
-    print("STARTING MODEL TRAINING & EVALUATION PIPELINE")
+    print("STARTING ANTI-LEAKAGE MODEL TRAINING & EVALUATION PIPELINE")
     print("=" * 60)
     summary = run_training_pipeline()
-    print("\nMODEL BENCHMARK COMPARISON (TEST SET):")
+    print("\nAUTHORITATIVE BENCHMARK METRICS (HELD-OUT TEST SET):")
     print("-" * 60)
-    for model_name, metrics in summary.items():
-        print(f"\n[{model_name.upper()}]")
-        for k, v in metrics.items():
-            print(f" - {k}: {v}")
+    print(f"Optimal Threshold (Selected on Validation): {summary['metadata']['optimal_threshold']:.2f}")
+    print(f"Test Recall at Optimal Threshold: {summary['test_evaluation_optimal_threshold']['metrics']['recall']*100:.2f}%")
+    print(f"Test Net Benefit at Optimal Threshold: ${summary['test_evaluation_optimal_threshold']['net_financial_value']:,.2f}")
     print("=" * 60)

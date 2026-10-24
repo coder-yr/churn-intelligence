@@ -1,4 +1,106 @@
 {
+  "metadata": {
+    "random_seed": 42,
+    "feature_names": [
+      "tenure",
+      "MonthlyCharges",
+      "TotalCharges",
+      "num_services_subscribed",
+      "num_security_services",
+      "is_automatic_payment",
+      "has_fiber_no_support",
+      "charge_per_tenure_month",
+      "monthly_to_total_ratio",
+      "gender_Male",
+      "SeniorCitizen_1",
+      "Partner_Yes",
+      "Dependents_Yes",
+      "PhoneService_Yes",
+      "MultipleLines_No phone service",
+      "MultipleLines_Yes",
+      "InternetService_Fiber optic",
+      "InternetService_No",
+      "OnlineSecurity_No internet service",
+      "OnlineSecurity_Yes",
+      "OnlineBackup_No internet service",
+      "OnlineBackup_Yes",
+      "DeviceProtection_No internet service",
+      "DeviceProtection_Yes",
+      "TechSupport_No internet service",
+      "TechSupport_Yes",
+      "StreamingTV_No internet service",
+      "StreamingTV_Yes",
+      "StreamingMovies_No internet service",
+      "StreamingMovies_Yes",
+      "Contract_One year",
+      "Contract_Two year",
+      "PaperlessBilling_Yes",
+      "PaymentMethod_Credit card (automatic)",
+      "PaymentMethod_Electronic check",
+      "PaymentMethod_Mailed check",
+      "tenure_cohort_13-24m",
+      "tenure_cohort_25-36m",
+      "tenure_cohort_37-48m",
+      "tenure_cohort_49-60m",
+      "tenure_cohort_61-72m"
+    ],
+    "threshold_selection_split": "validation",
+    "optimal_threshold": 0.27,
+    "default_threshold": 0.5,
+    "best_iteration": 49,
+    "evaluation_date": "2026-10-24T04:22:03.398624+00:00",
+    "assumptions": {
+      "cost_offer": 20.0,
+      "offer_save_rate": 0.5,
+      "customer_margin": 120.0
+    },
+    "split_sizes": {
+      "train": 4929,
+      "val": 1057,
+      "test": 1057
+    }
+  },
+  "validation_threshold_tuning": {
+    "optimal_threshold": 0.27,
+    "net_value": 1400.0,
+    "f1_score": 0.572,
+    "recall": 0.9537,
+    "precision": 0.4085,
+    "confusion_matrix": {
+      "tn": 388,
+      "fp": 388,
+      "fn": 13,
+      "tp": 268
+    }
+  },
+  "test_evaluation_default_threshold": {
+    "accuracy": 0.7758,
+    "precision": 0.5576,
+    "recall": 0.7429,
+    "f1_score": 0.6371,
+    "roc_auc": 0.8432,
+    "pr_auc": 0.6349,
+    "brier_score": 0.1514
+  },
+  "test_evaluation_optimal_threshold": {
+    "applied_threshold": 0.27,
+    "metrics": {
+      "accuracy": 0.6225,
+      "precision": 0.4075,
+      "recall": 0.9357,
+      "f1_score": 0.5677,
+      "roc_auc": 0.8432,
+      "pr_auc": 0.6349,
+      "brier_score": 0.1514
+    },
+    "net_financial_value": 700.0,
+    "confusion_matrix": {
+      "tn": 396,
+      "fp": 381,
+      "fn": 18,
+      "tp": 262
+    }
+  },
   "dummy_baseline": {
     "accuracy": 0.7351,
     "precision": 0.0,
@@ -16,27 +118,5 @@
     "roc_auc": 0.8449,
     "pr_auc": 0.6394,
     "brier_score": 0.1627
-  },
-  "lightgbm_default_threshold": {
-    "accuracy": 0.7758,
-    "precision": 0.5576,
-    "recall": 0.7429,
-    "f1_score": 0.6371,
-    "roc_auc": 0.8432,
-    "pr_auc": 0.6349,
-    "brier_score": 0.1514
-  },
-  "lightgbm_optimal_threshold": {
-    "optimal_threshold": 0.28,
-    "net_value": 800.0,
-    "f1_score": 0.5778,
-    "recall": 0.9286,
-    "precision": 0.4194,
-    "confusion_matrix": {
-      "tn": 417,
-      "fp": 360,
-      "fn": 20,
-      "tp": 260
-    }
   }
 }

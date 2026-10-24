@@ -128,3 +128,19 @@ def test_preprocessor_artifact_and_features():
     assert X_train.isna().sum().sum() == 0
     assert X_val.isna().sum().sum() == 0
     assert X_test.isna().sum().sum() == 0
+
+
+def test_feature_order_consistency():
+    """Verify that model artifact metadata feature order strictly matches X_train feature order."""
+    model_path = MODELS_DIR / "churn_lightgbm.joblib"
+    assert model_path.exists(), "Model artifact must exist."
+
+    model_art = joblib.load(model_path)
+    assert "metadata" in model_art
+    meta_features = model_art["metadata"]["feature_names"]
+
+    X_train = pd.read_csv(PROCESSED_DATA_DIR / "X_train.csv")
+    train_features = X_train.columns.tolist()
+
+    assert meta_features == train_features, "Feature names and column order must match exactly between training and metadata."
+    assert len(meta_features) == 41

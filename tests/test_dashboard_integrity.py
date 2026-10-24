@@ -4,8 +4,11 @@ Integration test for Streamlit Dashboard data integrity and artifact loading.
 
 from pathlib import Path
 import json
+import numpy as np
 import pandas as pd
 import pytest
+
+from app import load_test_evaluation_data
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -42,7 +45,7 @@ def test_all_json_metric_summaries_exist_and_load():
     for fname in expected_files:
         fpath = MODELS_DIR / fname
         assert fpath.exists(), f"Missing JSON summary: {fpath}"
-        with open(fpath, "r") as f:
+        with open(fpath, "r", encoding="utf-8") as f:
             data = json.load(f)
             assert isinstance(data, (dict, list)), f"Corrupt JSON structure in {fname}"
 
@@ -66,3 +69,36 @@ def test_key_figures_exist_for_dashboard_tabs():
     for fig in expected_figures:
         fig_path = FIGURES_DIR / fig
         assert fig_path.exists(), f"Missing required dashboard figure: {fig_path}"
+
+
+def test_dashboard_test_evaluation_data_loader():
+    """Verify that dashboard loads genuine test set arrays rather than sampling."""
+    y_test, y_proba = load_test_evaluation_data()
+    assert y_test is not None and y_proba is not None
+    assert len(y_test) == 1057
+    assert len(y_proba) == 1057
+    assert (y_proba >= 0.0).all() and (y_proba <= 1.0).all()
+    assert set(np.unique(y_test)).issubset({0, 1})
+
+
+def test_sample_customer_explanations_distinct_profiles():
+    """Verify that sample customer explanations contain distinct archetypes."""
+    fpath = MODELS_DIR / "sample_customer_explanations.json"
+    with open(fpath, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    assert "high_risk_customer" in data
+    assert "moderate_risk_customer" in data
+    assert "low_risk_customer" in data
+
+    ids = [
+        data["high_risk_customer"]["customerID"],
+        data["moderate_risk_customer"]["customerID"],
+        data["low_risk_customer"]["customerID"],
+    ]
+    assert len(set(ids)) == 3, "Customer archetypes must represent distinct individual accounts"
+
+    p_high = data["high_risk_customer"]["predicted_churn_probability"]
+    p_mod = data["moderate_risk_customer"]["predicted_churn_probability"]
+    p_low = data["low_risk_customer"]["predicted_churn_probability"]
+    assert p_high > p_mod > p_low, "Probabilities must be properly ordered across risk tiers"
