@@ -1,0 +1,153 @@
+{
+  "overall_survival": {
+    "median_survival_months": Infinity,
+    "survival_probability_12m": 0.8432,
+    "survival_probability_24m": 0.7887,
+    "survival_probability_36m": 0.7485
+  },
+  "contract_survival": {
+    "Month-to-month": {
+      "customer_count": 3875,
+      "median_survival_months": 35.0,
+      "survival_12m": 0.7031,
+      "survival_24m": 0.5859,
+      "survival_48m": 0.3973
+    },
+    "One year": {
+      "customer_count": 1473,
+      "median_survival_months": "Undefined (>72m)",
+      "survival_12m": 0.9908,
+      "survival_24m": 0.9783,
+      "survival_48m": 0.9165
+    },
+    "Two year": {
+      "customer_count": 1695,
+      "median_survival_months": "Undefined (>72m)",
+      "survival_12m": 1.0,
+      "survival_24m": 1.0,
+      "survival_48m": 0.9957
+    },
+    "_logrank_test": {
+      "group_a": "Month-to-month",
+      "group_b": "One year",
+      "p_value": 2.1173266936004908e-203,
+      "test_statistic": 926.0646
+    }
+  },
+  "tech_support_survival": {
+    "No": {
+      "customer_count": 3473,
+      "median_survival_months": 53.0,
+      "survival_12m": 0.7427,
+      "survival_24m": 0.6528,
+      "survival_48m": 0.5297
+    },
+    "Yes": {
+      "customer_count": 2044,
+      "median_survival_months": "Undefined (>72m)",
+      "survival_12m": 0.9457,
+      "survival_24m": 0.9173,
+      "survival_48m": 0.8598
+    },
+    "No internet service": {
+      "customer_count": 1526,
+      "median_survival_months": "Undefined (>72m)",
+      "survival_12m": 0.9352,
+      "survival_24m": 0.9263,
+      "survival_48m": 0.918
+    },
+    "_logrank_test": {
+      "group_a": "No",
+      "group_b": "Yes",
+      "p_value": 4.6270581309010773e-141,
+      "test_statistic": 639.35
+    }
+  },
+  "cox_c_index": 0.9247,
+  "top_hazard_ratios": [
+    {
+      "covariate": "InternetService_Fiber optic",
+      "hazard_ratio": 2.2632,
+      "lower_95": 1.9071,
+      "upper_95": 2.6859,
+      "p_value": 0.0
+    },
+    {
+      "covariate": "PaymentMethod_Mailed check",
+      "hazard_ratio": 1.6027,
+      "lower_95": 1.369,
+      "upper_95": 1.8762,
+      "p_value": 0.0
+    },
+    {
+      "covariate": "PaymentMethod_Electronic check",
+      "hazard_ratio": 1.564,
+      "lower_95": 1.3731,
+      "upper_95": 1.7815,
+      "p_value": 0.0
+    },
+    {
+      "covariate": "PaperlessBilling_Yes",
+      "hazard_ratio": 1.2307,
+      "lower_95": 1.1061,
+      "upper_95": 1.3693,
+      "p_value": 0.000138
+    },
+    {
+      "covariate": "MonthlyCharges",
+      "hazard_ratio": 1.0181,
+      "lower_95": 1.0142,
+      "upper_95": 1.0221,
+      "p_value": 0.0
+    },
+    {
+      "covariate": "TotalCharges",
+      "hazard_ratio": 0.9989,
+      "lower_95": 0.9989,
+      "upper_95": 0.999,
+      "p_value": 0.0
+    },
+    {
+      "covariate": "PaymentMethod_Credit card (automatic)",
+      "hazard_ratio": 0.9408,
+      "lower_95": 0.7982,
+      "upper_95": 1.1088,
+      "p_value": 0.466652
+    },
+    {
+      "covariate": "TechSupport_Yes",
+      "hazard_ratio": 0.7952,
+      "lower_95": 0.7008,
+      "upper_95": 0.9024,
+      "p_value": 0.000382
+    },
+    {
+      "covariate": "TechSupport_No internet service",
+      "hazard_ratio": 0.5063,
+      "lower_95": 0.3329,
+      "upper_95": 0.7701,
+      "p_value": 0.001468
+    },
+    {
+      "covariate": "InternetService_No",
+      "hazard_ratio": 0.5063,
+      "lower_95": 0.3329,
+      "upper_95": 0.7701,
+      "p_value": 0.001468
+    },
+    {
+      "covariate": "Contract_One year",
+      "hazard_ratio": 0.336,
+      "lower_95": 0.2837,
+      "upper_95": 0.398,
+      "p_value": 0.0
+    },
+    {
+      "covariate": "Contract_Two year",
+      "hazard_ratio": 0.0746,
+      "lower_95": 0.0571,
+      "upper_95": 0.0974,
+      "p_value": 0.0
+    }
+  ]
+}

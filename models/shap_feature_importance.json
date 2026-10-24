@@ -1,0 +1,62 @@
+[
+  {
+    "feature": "Contract_Two year",
+    "mean_abs_shap": 0.6232
+  },
+  {
+    "feature": "Contract_One year",
+    "mean_abs_shap": 0.2901
+  },
+  {
+    "feature": "InternetService_Fiber optic",
+    "mean_abs_shap": 0.1607
+  },
+  {
+    "feature": "monthly_to_total_ratio",
+    "mean_abs_shap": 0.1495
+  },
+  {
+    "feature": "has_fiber_no_support",
+    "mean_abs_shap": 0.1149
+  },
+  {
+    "feature": "tenure",
+    "mean_abs_shap": 0.0899
+  },
+  {
+    "feature": "PaymentMethod_Electronic check",
+    "mean_abs_shap": 0.087
+  },
+  {
+    "feature": "MonthlyCharges",
+    "mean_abs_shap": 0.0757
+  },
+  {
+    "feature": "StreamingMovies_Yes",
+    "mean_abs_shap": 0.0683
+  },
+  {
+    "feature": "InternetService_No",
+    "mean_abs_shap": 0.0467
+  },
+  {
+    "feature": "charge_per_tenure_month",
+    "mean_abs_shap": 0.0379
+  },
+  {
+    "feature": "TotalCharges",
+    "mean_abs_shap": 0.03
+  },
+  {
+    "feature": "PaperlessBilling_Yes",
+    "mean_abs_shap": 0.0298
+  },
+  {
+    "feature": "OnlineSecurity_Yes",
+    "mean_abs_shap": 0.0223
+  },
+  {
+    "feature": "PhoneService_Yes",
+    "mean_abs_shap": 0.0214
+  }
+]

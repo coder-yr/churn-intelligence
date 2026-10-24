@@ -1,0 +1,184 @@
+{
+  "high_risk_customer": {
+    "customerID": "5539-TMZLF",
+    "predicted_churn_probability": 0.8011,
+    "base_value_margin": -0.68,
+    "total_shap_sum": 2.073,
+    "risk_drivers": [
+      {
+        "feature": "Contract_Two year",
+        "shap_value": 0.5991,
+        "feature_value": 0.0
+      },
+      {
+        "feature": "Contract_One year",
+        "shap_value": 0.3515,
+        "feature_value": 0.0
+      },
+      {
+        "feature": "tenure",
+        "shap_value": 0.3143,
+        "feature_value": -1.2706
+      },
+      {
+        "feature": "monthly_to_total_ratio",
+        "shap_value": 0.288,
+        "feature_value": 0.3332
+      },
+      {
+        "feature": "InternetService_Fiber optic",
+        "shap_value": 0.1644,
+        "feature_value": 1.0
+      }
+    ],
+    "protective_drivers": [
+      {
+        "feature": "MonthlyCharges",
+        "shap_value": -0.0409,
+        "feature_value": 0.1661
+      },
+      {
+        "feature": "StreamingMovies_Yes",
+        "shap_value": -0.029,
+        "feature_value": 0.0
+      },
+      {
+        "feature": "charge_per_tenure_month",
+        "shap_value": -0.0189,
+        "feature_value": -0.7841
+      },
+      {
+        "feature": "PhoneService_Yes",
+        "shap_value": -0.0106,
+        "feature_value": 1.0
+      },
+      {
+        "feature": "StreamingTV_Yes",
+        "shap_value": -0.0078,
+        "feature_value": 0.0
+      }
+    ],
+    "customer_profile": {
+      "customerID": "5539-TMZLF",
+      "gender": "Male",
+      "SeniorCitizen": 1,
+      "Partner": "No",
+      "Dependents": "No",
+      "tenure": 1,
+      "PhoneService": "Yes",
+      "MultipleLines": "No",
+      "InternetService": "Fiber optic",
+      "OnlineSecurity": "No",
+      "OnlineBackup": "No",
+      "DeviceProtection": "No",
+      "TechSupport": "No",
+      "StreamingTV": "No",
+      "StreamingMovies": "No",
+      "Contract": "Month-to-month",
+      "PaperlessBilling": "Yes",
+      "PaymentMethod": "Electronic check",
+      "MonthlyCharges": 69.75,
+      "TotalCharges": 69.75,
+      "Churn": "Yes",
+      "churn_label": 1,
+      "tenure_cohort": "0-12m",
+      "num_services_subscribed": 2,
+      "num_security_services": 0,
+      "is_automatic_payment": 0,
+      "has_fiber_no_support": 1,
+      "charge_per_tenure_month": 34.88,
+      "monthly_to_total_ratio": 0.9859
+    }
+  },
+  "low_risk_customer": {
+    "customerID": "6919-ELBGL",
+    "predicted_churn_probability": 0.0649,
+    "base_value_margin": -0.68,
+    "total_shap_sum": -1.9882,
+    "risk_drivers": [
+      {
+        "feature": "Contract_One year",
+        "shap_value": 0.0878,
+        "feature_value": 0.0
+      },
+      {
+        "feature": "MonthlyCharges",
+        "shap_value": 0.0821,
+        "feature_value": 1.6665
+      },
+      {
+        "feature": "InternetService_Fiber optic",
+        "shap_value": 0.0482,
+        "feature_value": 1.0
+      },
+      {
+        "feature": "SeniorCitizen_1",
+        "shap_value": 0.0349,
+        "feature_value": 1.0
+      },
+      {
+        "feature": "StreamingMovies_Yes",
+        "shap_value": 0.0314,
+        "feature_value": 1.0
+      }
+    ],
+    "protective_drivers": [
+      {
+        "feature": "Contract_Two year",
+        "shap_value": -1.4833,
+        "feature_value": 1.0
+      },
+      {
+        "feature": "TotalCharges",
+        "shap_value": -0.2765,
+        "feature_value": 2.6008
+      },
+      {
+        "feature": "tenure",
+        "shap_value": -0.2111,
+        "feature_value": 1.6097
+      },
+      {
+        "feature": "monthly_to_total_ratio",
+        "shap_value": -0.1725,
+        "feature_value": -0.1042
+      },
+      {
+        "feature": "has_fiber_no_support",
+        "shap_value": -0.052,
+        "feature_value": -0.6766
+      }
+    ],
+    "customer_profile": {
+      "customerID": "6919-ELBGL",
+      "gender": "Male",
+      "SeniorCitizen": 1,
+      "Partner": "Yes",
+      "Dependents": "Yes",
+      "tenure": 72,
+      "PhoneService": "Yes",
+      "MultipleLines": "Yes",
+      "InternetService": "Fiber optic",
+      "OnlineSecurity": "Yes",
+      "OnlineBackup": "Yes",
+      "DeviceProtection": "Yes",
+      "TechSupport": "Yes",
+      "StreamingTV": "Yes",
+      "StreamingMovies": "Yes",
+      "Contract": "Two year",
+      "PaperlessBilling": "Yes",
+      "PaymentMethod": "Bank transfer (automatic)",
+      "MonthlyCharges": 114.95,
+      "TotalCharges": 8196.4,
+      "Churn": "No",
+      "churn_label": 0,
+      "tenure_cohort": "61-72m",
+      "num_services_subscribed": 9,
+      "num_security_services": 4,
+      "is_automatic_payment": 1,
+      "has_fiber_no_support": 0,
+      "charge_per_tenure_month": 112.28,
+      "monthly_to_total_ratio": 0.014
+    }
+  }
+}

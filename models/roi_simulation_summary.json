@@ -1,0 +1,66 @@
+{
+  "reference_simulation": {
+    "inputs": {
+      "target_population": 1200,
+      "offer_cost_per_customer": 45.0,
+      "baseline_churn_rate": 0.63,
+      "retention_uplift": 0.12,
+      "effective_uplift": 0.12,
+      "customer_arpu": 85.22,
+      "gross_margin": 0.7,
+      "horizon_months": 12,
+      "annual_discount_rate": 0.1
+    },
+    "volume_outcomes": {
+      "expected_natural_churners": 756,
+      "incrementally_saved_customers": 144,
+      "post_campaign_churners": 612,
+      "post_campaign_churn_rate": 0.51
+    },
+    "financial_outcomes": {
+      "total_campaign_cost": 54000.0,
+      "npv_value_per_saved_customer": 680.08,
+      "gross_financial_benefit": 97931.52,
+      "net_campaign_profit": 43931.52,
+      "roi_percentage": 81.35,
+      "cost_per_saved_customer": 375.0
+    },
+    "break_even": {
+      "break_even_uplift_pct": 6.62,
+      "break_even_saved_customers": 80,
+      "is_profitable": true
+    }
+  },
+  "policy_comparison": [
+    {
+      "Policy": "1. Mass Blanket (Untargeted)",
+      "Targeted Accounts": 7043,
+      "Offer Cost": "$25",
+      "Total Cost": "$176,075",
+      "Saved Customers": 211,
+      "Gross Benefit": "$109,047",
+      "Net Profit": "$-67,028",
+      "ROI (%)": "-38.1%"
+    },
+    {
+      "Policy": "2. Risk-Only (All Prob >= 0.28)",
+      "Targeted Accounts": 2300,
+      "Offer Cost": "$35",
+      "Total Cost": "$80,500",
+      "Saved Customers": 138,
+      "Gross Benefit": "$81,980",
+      "Net Profit": "$1,480",
+      "ROI (%)": "1.8%"
+    },
+    {
+      "Policy": "3. Precision (High-CLV Persuadables)",
+      "Targeted Accounts": 1200,
+      "Offer Cost": "$45",
+      "Total Cost": "$54,000",
+      "Saved Customers": 144,
+      "Gross Benefit": "$97,932",
+      "Net Profit": "$43,932",
+      "ROI (%)": "81.3%"
+    }
+  ]
+}

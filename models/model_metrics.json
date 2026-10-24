@@ -1,0 +1,42 @@
+{
+  "dummy_baseline": {
+    "accuracy": 0.7351,
+    "precision": 0.0,
+    "recall": 0.0,
+    "f1_score": 0.0,
+    "roc_auc": 0.5,
+    "pr_auc": 0.2649,
+    "brier_score": 0.2649
+  },
+  "logistic_regression": {
+    "accuracy": 0.7474,
+    "precision": 0.5155,
+    "recall": 0.7714,
+    "f1_score": 0.618,
+    "roc_auc": 0.8449,
+    "pr_auc": 0.6394,
+    "brier_score": 0.1627
+  },
+  "lightgbm_default_threshold": {
+    "accuracy": 0.7758,
+    "precision": 0.5576,
+    "recall": 0.7429,
+    "f1_score": 0.6371,
+    "roc_auc": 0.8432,
+    "pr_auc": 0.6349,
+    "brier_score": 0.1514
+  },
+  "lightgbm_optimal_threshold": {
+    "optimal_threshold": 0.28,
+    "net_value": 800.0,
+    "f1_score": 0.5778,
+    "recall": 0.9286,
+    "precision": 0.4194,
+    "confusion_matrix": {
+      "tn": 417,
+      "fp": 360,
+      "fn": 20,
+      "tp": 260
+    }
+  }
+}

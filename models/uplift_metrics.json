@@ -1,0 +1,132 @@
+{
+  "dataset": "Hillstrom MineThatData Randomized Controlled Trial",
+  "sample_size": {
+    "train": 51200,
+    "test": 12800
+  },
+  "model_performance": {
+    "auc_control": 0.6546,
+    "auc_treated": 0.6213,
+    "qini_score": 37.46,
+    "total_campaign_incremental_gain": 520.2
+  },
+  "deciles": [
+    {
+      "decile": 1,
+      "size": 1280,
+      "n_treated": 842,
+      "n_control": 438,
+      "mean_pred_uplift": 0.14306669244345102,
+      "treated_rate": 0.23634204275534443,
+      "control_rate": 0.1461187214611872,
+      "observed_uplift": 0.09022332129415722
+    },
+    {
+      "decile": 2,
+      "size": 1280,
+      "n_treated": 824,
+      "n_control": 456,
+      "mean_pred_uplift": 0.09898437358405017,
+      "treated_rate": 0.19174757281553398,
+      "control_rate": 0.1118421052631579,
+      "observed_uplift": 0.07990546755237608
+    },
+    {
+      "decile": 3,
+      "size": 1280,
+      "n_treated": 862,
+      "n_control": 418,
+      "mean_pred_uplift": 0.0835048596337188,
+      "treated_rate": 0.16357308584686775,
+      "control_rate": 0.10526315789473684,
+      "observed_uplift": 0.05830992795213091
+    },
+    {
+      "decile": 4,
+      "size": 1280,
+      "n_treated": 864,
+      "n_control": 416,
+      "mean_pred_uplift": 0.07296409434489881,
+      "treated_rate": 0.16203703703703703,
+      "control_rate": 0.07932692307692307,
+      "observed_uplift": 0.08271011396011396
+    },
+    {
+      "decile": 5,
+      "size": 1280,
+      "n_treated": 809,
+      "n_control": 471,
+      "mean_pred_uplift": 0.06419738088943804,
+      "treated_rate": 0.13473423980222496,
+      "control_rate": 0.06794055201698514,
+      "observed_uplift": 0.06679368778523982
+    },
+    {
+      "decile": 6,
+      "size": 1280,
+      "n_treated": 894,
+      "n_control": 386,
+      "mean_pred_uplift": 0.055790848766375224,
+      "treated_rate": 0.1599552572706935,
+      "control_rate": 0.09585492227979274,
+      "observed_uplift": 0.06410033499090077
+    },
+    {
+      "decile": 7,
+      "size": 1280,
+      "n_treated": 865,
+      "n_control": 415,
+      "mean_pred_uplift": 0.04715867692998789,
+      "treated_rate": 0.14913294797687862,
+      "control_rate": 0.11325301204819277,
+      "observed_uplift": 0.03587993592868585
+    },
+    {
+      "decile": 8,
+      "size": 1280,
+      "n_treated": 852,
+      "n_control": 428,
+      "mean_pred_uplift": 0.0374866044840331,
+      "treated_rate": 0.1443661971830986,
+      "control_rate": 0.0794392523364486,
+      "observed_uplift": 0.06492694484665
+    },
+    {
+      "decile": 9,
+      "size": 1280,
+      "n_treated": 842,
+      "n_control": 438,
+      "mean_pred_uplift": 0.02434412897860703,
+      "treated_rate": 0.14489311163895488,
+      "control_rate": 0.1141552511415525,
+      "observed_uplift": 0.030737860497402375
+    },
+    {
+      "decile": 10,
+      "size": 1280,
+      "n_treated": 885,
+      "n_control": 395,
+      "mean_pred_uplift": -0.01481072108875614,
+      "treated_rate": 0.18305084745762712,
+      "control_rate": 0.1518987341772152,
+      "observed_uplift": 0.031152113280411925
+    }
+  ],
+  "quadrant_distribution": {
+    "Persuadables": 7921,
+    "Lost Causes": 3407,
+    "Sleeping Dogs": 751,
+    "Sure Things": 721
+  },
+  "features": [
+    "recency",
+    "history",
+    "mens",
+    "womens",
+    "newbie",
+    "zip_Suburban",
+    "zip_Urban",
+    "channel_Phone",
+    "channel_Web"
+  ]
+}

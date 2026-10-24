@@ -1,0 +1,39 @@
+# ==============================================================================
+# Customer Lifetime Value & Churn Intelligence System - Dependencies
+# Python Version: 3.13.x (Windows 64-bit)
+# ==============================================================================
+
+# Core Data Manipulation & Mathematics (Installed in .venv)
+pandas>=2.2.0,<4.0.0
+numpy>=1.26.0,<3.0.0
+scipy>=1.14.0
+
+# Visualization & EDA (Installed in .venv)
+matplotlib>=3.8.0
+seaborn>=0.13.0
+
+# Machine Learning & Modeling (Installed in .venv)
+scikit-learn>=1.5.0
+lightgbm>=4.0.0
+
+# Model Explainability (Installed in .venv)
+shap>=0.45.0
+
+# Survival Analysis (Installed in .venv)
+lifelines>=0.29.0
+
+# Database Integration (PostgreSQL + SQLAlchemy) (Installed in .venv)
+SQLAlchemy>=2.0.0
+psycopg[binary]>=3.1.0
+python-dotenv>=1.0.0
+
+# Interactive Web Application (Planned for Phase 11)
+streamlit>=1.35.0
+
+# Automated Testing (Installed in .venv)
+pytest>=8.0.0
+
+# Uplift Modeling Note (Phase 9):
+# CausalML requires C++ compilation tools on Windows; if binary wheels are absent,
+# an interpretable Two-Model T-Learner / S-Learner implemented via scikit-learn / LightGBM
+# provides a robust, transparent, and portable alternative without external compiler friction.

@@ -1,0 +1,222 @@
+{
+  "overall_clv": {
+    "mean_clv_24m": 843.94,
+    "median_clv_24m": 889.61,
+    "total_portfolio_clv_24m": 5943848.92,
+    "mean_historical_profit": 1595.81
+  },
+  "clustering_evaluation": {
+    "silhouette_score": 0.389,
+    "davies_bouldin_index": 0.9119,
+    "features": [
+      "tenure",
+      "MonthlyCharges",
+      "clv_24m",
+      "churn_probability"
+    ],
+    "segment_names": {
+      "0": "High-Value Loyalists",
+      "1": "Budget Steady Anchors",
+      "2": "Vulnerable High-Spenders",
+      "3": "New Onboarding Risks"
+    },
+    "profile": [
+      {
+        "customer_count": 1950,
+        "tenure": 58.1,
+        "MonthlyCharges": 90.36,
+        "clv_24m": 1222.52,
+        "churn_probability": 0.24,
+        "segment_name": "High-Value Loyalists"
+      },
+      {
+        "customer_count": 1480,
+        "tenure": 45.22,
+        "MonthlyCharges": 30.73,
+        "clv_24m": 423.96,
+        "churn_probability": 0.14,
+        "segment_name": "Budget Steady Anchors"
+      },
+      {
+        "customer_count": 2052,
+        "tenure": 16.63,
+        "MonthlyCharges": 85.22,
+        "clv_24m": 1060.82,
+        "churn_probability": 0.63,
+        "segment_name": "Vulnerable High-Spenders"
+      },
+      {
+        "customer_count": 1561,
+        "tenure": 8.74,
+        "MonthlyCharges": 38.16,
+        "clv_24m": 484.09,
+        "churn_probability": 0.43,
+        "segment_name": "New Onboarding Risks"
+      }
+    ]
+  },
+  "sensitivity_sample": [
+    {
+      "margin_rate": "60%",
+      "annual_discount_rate": "8%",
+      "horizon_months": "12m",
+      "avg_clv": 409.25
+    },
+    {
+      "margin_rate": "60%",
+      "annual_discount_rate": "8%",
+      "horizon_months": "24m",
+      "avg_clv": 736.29
+    },
+    {
+      "margin_rate": "60%",
+      "annual_discount_rate": "8%",
+      "horizon_months": "36m",
+      "avg_clv": 1001.26
+    },
+    {
+      "margin_rate": "60%",
+      "annual_discount_rate": "10%",
+      "horizon_months": "12m",
+      "avg_clv": 405.35
+    },
+    {
+      "margin_rate": "60%",
+      "annual_discount_rate": "10%",
+      "horizon_months": "24m",
+      "avg_clv": 723.37
+    },
+    {
+      "margin_rate": "60%",
+      "annual_discount_rate": "10%",
+      "horizon_months": "36m",
+      "avg_clv": 976.36
+    },
+    {
+      "margin_rate": "60%",
+      "annual_discount_rate": "12%",
+      "horizon_months": "12m",
+      "avg_clv": 401.57
+    },
+    {
+      "margin_rate": "60%",
+      "annual_discount_rate": "12%",
+      "horizon_months": "24m",
+      "avg_clv": 710.99
+    },
+    {
+      "margin_rate": "60%",
+      "annual_discount_rate": "12%",
+      "horizon_months": "36m",
+      "avg_clv": 952.73
+    },
+    {
+      "margin_rate": "70%",
+      "annual_discount_rate": "8%",
+      "horizon_months": "12m",
+      "avg_clv": 477.45
+    },
+    {
+      "margin_rate": "70%",
+      "annual_discount_rate": "8%",
+      "horizon_months": "24m",
+      "avg_clv": 859.0
+    },
+    {
+      "margin_rate": "70%",
+      "annual_discount_rate": "8%",
+      "horizon_months": "36m",
+      "avg_clv": 1168.13
+    },
+    {
+      "margin_rate": "70%",
+      "annual_discount_rate": "10%",
+      "horizon_months": "12m",
+      "avg_clv": 472.91
+    },
+    {
+      "margin_rate": "70%",
+      "annual_discount_rate": "10%",
+      "horizon_months": "24m",
+      "avg_clv": 843.94
+    },
+    {
+      "margin_rate": "70%",
+      "annual_discount_rate": "10%",
+      "horizon_months": "36m",
+      "avg_clv": 1139.08
+    },
+    {
+      "margin_rate": "70%",
+      "annual_discount_rate": "12%",
+      "horizon_months": "12m",
+      "avg_clv": 468.5
+    },
+    {
+      "margin_rate": "70%",
+      "annual_discount_rate": "12%",
+      "horizon_months": "24m",
+      "avg_clv": 829.49
+    },
+    {
+      "margin_rate": "70%",
+      "annual_discount_rate": "12%",
+      "horizon_months": "36m",
+      "avg_clv": 1111.52
+    },
+    {
+      "margin_rate": "80%",
+      "annual_discount_rate": "8%",
+      "horizon_months": "12m",
+      "avg_clv": 545.66
+    },
+    {
+      "margin_rate": "80%",
+      "annual_discount_rate": "8%",
+      "horizon_months": "24m",
+      "avg_clv": 981.71
+    },
+    {
+      "margin_rate": "80%",
+      "annual_discount_rate": "8%",
+      "horizon_months": "36m",
+      "avg_clv": 1335.01
+    },
+    {
+      "margin_rate": "80%",
+      "annual_discount_rate": "10%",
+      "horizon_months": "12m",
+      "avg_clv": 540.46
+    },
+    {
+      "margin_rate": "80%",
+      "annual_discount_rate": "10%",
+      "horizon_months": "24m",
+      "avg_clv": 964.5
+    },
+    {
+      "margin_rate": "80%",
+      "annual_discount_rate": "10%",
+      "horizon_months": "36m",
+      "avg_clv": 1301.81
+    },
+    {
+      "margin_rate": "80%",
+      "annual_discount_rate": "12%",
+      "horizon_months": "12m",
+      "avg_clv": 535.42
+    },
+    {
+      "margin_rate": "80%",
+      "annual_discount_rate": "12%",
+      "horizon_months": "24m",
+      "avg_clv": 947.99
+    },
+    {
+      "margin_rate": "80%",
+      "annual_discount_rate": "12%",
+      "horizon_months": "36m",
+      "avg_clv": 1270.31
+    }
+  ]
+}

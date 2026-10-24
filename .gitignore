@@ -1,0 +1,43 @@
+# Python Virtual Environments
+.venv/
+*/.venv/
+venv/
+ENV/
+env/
+
+# Nested duplicate project directory
+churn-intelligence/
+
+# Python Bytecode and Caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.ipynb_checkpoints/
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment Variables & Secrets (CRITICAL: Never commit database credentials)
+.env
+*.env
+.env.local
+.env.*.local
+
+# IDEs & OS Files
+.vscode/
+.idea/
+Thumbs.db
+[Dd]esktop.ini
+.DS_Store
+
+# Data files (ignore heavy raw downloads and intermediate splits, track structure and final segmented dataset)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+!data/processed/telco_customer_clv_segmented.csv
+
+# Logs
+*.log
